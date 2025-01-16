@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Arithmetic Practices</title>
+    <style>
+      body {
+        background-color: black;
+        color: white;
+      }
+      a:link { color: yellow; }
+      a:visited { color: yellow; }
+      button {
+        color: white;
+        padding: 10px 32px;
+        text-align: center;
+        font-size: 24px;
+      }
+    .button1 {background-color: #04AA6D;} /* Green */
+    .button2 {background-color: #008CBA;} /* Blue */
+    .button3 {background-color: #f44336;} /* Red */ 
+    .button-num {background-color: #555555; border: 1;} /* Black */
+    .question {
+      font-size: 60px;
+    }
+    #myTick {
+      display: none;
+      vertical-align: top;
+      color: #04AA6D;
+      font-size: 64px;
+    }
+    #myCross {
+      display: none;
+      vertical-align: top;
+      color: #f44336;
+      font-size: 64px;
+    }
+    #scoreboard {
+      font-size: 24px;
+    }
+    </style>
+    <script>
+      const rndInt = (ilow, iupp) => ilow + Math.floor(Math.random() * (iupp-ilow+1));
+      const clearAns = () => document.getElementById("ans").value = "";
+      const displayScore = (msg) => document.getElementById("scoreboard").innerHTML = msg;
+      let gameMode = 0, gameModeName = "";
+      let gameOn = false;
+      let ans = 0;
+      let totalCorrect = 0, totalQ = 0, firstTry = false;
+
+      const gamePara = {
+        "1": [1, 10, 0, 10], 
+        "2": [2, 10, 11, 20],
+        "3": [2, 10, 21, 100],
+        "4": [11, 100, 20, 100] 
+      };
+
+      function runMultiplication(gameMode) {
+        let [alow, aupp, blow, bupp] = gamePara[gameMode];
+        let a = rndInt(alow, aupp);
+        let b = rndInt(blow, bupp);
+        ans = a*b;
+        document.getElementById("qna").innerHTML = `${a} x ${b} = `;
+        gameOn = true;
+      }
+      function runDivision(gameMode) {
+        let [alow, aupp, blow, bupp] = gamePara[gameMode];
+        let a = rndInt(alow, aupp);
+        ans = rndInt(blow, bupp);
+        let b = ans*a;
+        let q = `${b} &#247; ${a} = `;
+        document.getElementById("qna").innerHTML = q;
+        gameOn = true;
+      }
+      function run_mode(imode=0) {
+        if (imode > 0) {
+          gameMode = imode;
+          totalCorrect = 0, totalQ = 0;
+          if (gameMode <= 4) gameModeName = `Multiplication Level ${gameMode}----`;
+          else gameModeName = `Division Level ${gameMode-4}-----`;
+          displayScore(`${gameModeName}Score = 0`);
+        }
+        clearAns();
+        firstTry = true;
+        if (gameMode <= 4) runMultiplication(gameMode);
+        else runDivision(gameMode-4);
+      }
+
+      function showResult(ansCorrect) {        
+        if (ansCorrect) {
+          var x = document.getElementById("myTick");
+          x.style.display = "inline-block";
+          setTimeout(() => {
+            x.style.display="none";
+            run_mode();
+          }, 1000);
+        } else {
+          var x = document.getElementById("myCross");
+          x.style.display = "inline-block";
+          firstTry = false;
+          setTimeout(() => {
+            x.style.display="none";
+          }, 800);
+        }
+      }
+      function checkAnswer() {
+        if (!gameOn) return;
+        let isAnswerCorrect = String(ans) === document.getElementById("ans").value;
+        if (firstTry) {
+          totalCorrect += isAnswerCorrect;
+          totalQ++;
+        }
+        showResult(isAnswerCorrect);        
+        displayScore(`${gameModeName}Score = ${totalCorrect} / ${totalQ}`);
+      }
+      function inputDigit(d) {
+        let v = document.getElementById("ans").value;
+        document.getElementById("ans").value = `${v}${d}`;
+      }
+
+      
+    </script>
+  </head>
+  <body>
+    <div id="main">
+      <table border="5" padding="0" align="center">
+        <tr><td><span class="menu">
+          <button class="button1" onclick="run_mode(1)">Multiplication 1</button>
+          <button class="button1" onclick="run_mode(2)">Multiplication 2</button>
+          <button class="button1" onclick="run_mode(3)">Multiplication 3</button>
+          <button class="button1" onclick="run_mode(4)">Multiplication 4</button><br>
+          <button class="button1" onclick="run_mode(5)">Division 1</button>
+          <button class="button1" onclick="run_mode(6)">Division 2</button>
+          <button class="button1" onclick="run_mode(7)">Division 3</button>
+          <button class="button1" onclick="run_mode(8)">Division 4</button>
+        </span></td></tr>
+        <tr><td><span class="question" id="qna">  </span>
+          <input type="text" class="question" id="ans" size="3" />
+          <span id="myTick">&#10004;</span>
+          <span id="myCross">&#10007;</span>
+        </td></tr>
+        <tr><td><div id="numpad">
+          <button class="button-num" onclick="inputDigit(7)">7</button>
+          <button class="button-num" onclick="inputDigit(8)">8</button>
+          <button class="button-num" onclick="inputDigit(9)">9</button><br>
+          <button class="button-num" onclick="inputDigit(4)">4</button>
+          <button class="button-num" onclick="inputDigit(5)">5</button>
+          <button class="button-num" onclick="inputDigit(6)">6</button><br>
+          <button class="button-num" onclick="inputDigit(1)">1</button>
+          <button class="button-num" onclick="inputDigit(2)">2</button>
+          <button class="button-num" onclick="inputDigit(3)">3</button><br>
+          <button class="button-num" onclick="inputDigit(0)">0</button>
+          <button class="button-num" onclick="checkAnswer()">ENTER</button>  
+          <button class="button-num" onclick="clearAns()">AC</button>       
+        </div></td></tr>
+        <tr><td><span id="scoreboard">Choose a level to begin!</span></td></tr>
+      </table>
+    </div>
+  </body>
+</html>
