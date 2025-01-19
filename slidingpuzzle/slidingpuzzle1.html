@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sliding Puzzle 1</title>
+    <style>
+      body {
+        background-color: black;
+        color: white;
+        font-size: 20px;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+      }
+      button {
+        font-size: 20px;
+      }
+      .prow {
+        font-size: 0;
+        white-space: nowrap;
+      }
+    </style>
+    <script>
+      const nrow = 3, ncol = 4, iset = "A";
+      let gameOn = false, nmoves = 0;
+      let bloc = 0, sname = "";          // sname = image name of last piece
+      let imgSet = "", imgArr, goodArr;  // always 1D 
+
+      const getCoord = (k) => [Math.floor(k / ncol), k % ncol];
+      const displayMsg = (msg) => document.getElementById("scoreboard").innerHTML = msg;
+      function setup() {
+        goodArr = new Array();  
+        for (let k=0; k<nrow*ncol; k++) {
+            let imgName = `img${iset}-${String(k).padStart(2, '0')}.png`;
+            goodArr.push(imgName);
+            sname = imgName;
+        }
+        imgArr = [...goodArr];
+        showAllPieces();
+      }
+      function showAllPieces() {
+        for (let k=0; k<imgArr.length; k++) {
+          document.getElementById(`i${k}`).src = imgArr[k];
+        }
+      }
+
+      function startGame() {
+        imgArr = [...goodArr];
+        for (let i=0; i<5; i++) imgArr = shuffle(imgArr);
+        // make sure its solvable
+        imgArr = imgArr.map(x => parseInt(x.slice(5, 7)));        
+        while (!isGoodPerm(imgArr)) imgArr = shuffle(imgArr);
+        imgArr = imgArr.map(x => `img${iset}-${String(x).padStart(2, '0')}.png`);         
+        bloc = imgArr.indexOf(sname);
+        imgArr[bloc] = "blank.png";
+        showAllPieces();
+        nmoves = 0;        
+        displayMsg(`Gray piece goes to bottom right~`);
+        gameOn = true;
+      }
+
+      function shuffle(array) { // Fisher–Yates Shuffle O(n)
+        var m = array.length, t, i;
+        while (m) {
+          i = Math.floor(Math.random() * m--);
+          t = array[m];
+          array[m] = array[i];
+          array[i] = t;
+        }
+        return array;
+      }
+
+      // handle a potential move
+      function move(loc) {
+        if (!gameOn) return;
+        let isValid = false;
+        let [bx, by] = getCoord(bloc);
+        let [lx, ly] = getCoord(loc);
+        if (bx === lx) {
+          if (Math.abs(by - ly) === 1) isValid = true;
+        } else if (by === ly) {
+          if (Math.abs(bx - lx) === 1) isValid = true;
+        }
+        if (!isValid) return;
+        imgArr[bloc] = imgArr[loc];
+        imgArr[loc]  = "blank.png";
+        bloc = loc;
+        showAllPieces();
+        nmoves++;
+        if (isDone()) {
+          gameOn = false;
+          document.getElementById(`i${nrow*ncol-1}`).src = sname;
+          displayMsg(`Good Job! You've used ${nmoves} moves.`);
+        } else displayMsg(`Moves used = ${nmoves}`);
+      }
+
+      function isDone() {
+        for (let k=0; k<imgArr.length-1; k++) {          
+          if (goodArr[k] !== imgArr[k]) return false;
+        }
+        return true;
+      }
+
+      function isGoodPerm(p) {
+        function formMap(p) {
+          let m = {};
+          for (let k=0; k<p.length; k++) {
+            m[p[k]] = k;
+          }
+          return m;
+        }
+        function runthr(m, dstart) { // return the current cycle
+          let cycle = [dstart];
+          let y = m[dstart];
+          while (y != dstart) {
+            cycle.push(y);
+            y = m[y];
+          }
+          return cycle;
+        }
+        let minpost=0, visited=[], countOdd=0;
+        let x, z;
+        const m = formMap(p);
+        while (minpost < p.length) {
+          x = p[minpost];
+          let cycle = runthr(m, x);
+          countOdd += (cycle.length % 2 == 0);
+          visited = visited.concat(cycle);
+          for (z=minpost+1; z < p.length+1; z++) {
+            if (!visited.includes(z)) break;
+          }
+          minpost = z;
+        }
+        z = p.indexOf(nrow*ncol-1)
+        z = nrow + ncol + Math.floor(z/ncol) + (z % ncol)
+        return Boolean((countOdd%2) == (z%2));
+      }
+
+    </script>
+  </head>
+  <body onload="setup()">
+    <h1>Sliding Puzzle 1: 3x4</h1>
+    <div class="container">
+      <div>
+        <button onclick="startGame()">New Game</button>
+        <span id="scoreboard">Gray piece goes to bottom right~</span>
+      </div>
+      <div class="prow" id="prow0">
+        <img src="blank.png" id="i0" onmouseover="move('0')" />
+        <img src="blank.png" id="i1" onmouseover="move('1')" />
+        <img src="blank.png" id="i2" onmouseover="move('2')" />
+        <img src="blank.png" id="i3" onmouseover="move('3')" />
+      </div>
+      <div class="prow" id="prow1">
+        <img src="blank.png" id="i4" onmouseover="move('4')" />
+        <img src="blank.png" id="i5" onmouseover="move('5')" />
+        <img src="blank.png" id="i6" onmouseover="move('6')" />
+        <img src="blank.png" id="i7" onmouseover="move('7')" />
+      </div>
+      <div class="prow" id="prow2">
+        <img src="blank.png" id="i8"  onmouseover="move('8')" />
+        <img src="blank.png" id="i9"  onmouseover="move('9')" />
+        <img src="blank.png" id="i10" onmouseover="move('10')" />
+        <img src="blank.png" id="i11" onmouseover="move('11')" />
+      </div>      
+    </div>
+  </body>
+</html>
