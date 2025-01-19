@@ -150,7 +150,8 @@
       <div>
         <button onclick="startGame()">New Game</button>
         <span id="scoreboard">Gray piece goes to bottom right~</span>
-        <button onmousedown="peekOriginal(true)" onmouseup="peekOriginal(false)">peek</button>
+        <button onmousedown="peekOriginal(true)" onmouseup="peekOriginal(false)"
+          ontouchstart="peekOriginal(true)" ontouchend="peekOriginal(false)">peek</button>
       </div>
       <div class="prow" id="prow0">
         <img src="blankto.png" id="i0" onmouseover="move('0')" />
