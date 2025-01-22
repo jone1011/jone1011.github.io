@@ -2,7 +2,7 @@
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
-    <title>Sliding Puzzle 2</title>
+    <title>Sliding Puzzle for mobile</title>
     <style>
       body {
         background-color: black;
@@ -22,7 +22,7 @@
       }
     </style>
     <script>
-      const nrow = 4, ncol = 8, iset = "totoro", bname = "blankto.png";
+      const nrow = 5, ncol = 4, iset = "dconan", bname = "blankco.png";
       let gameOn = false, nmoves = 0;
       let bloc = 0, sname = "";          // sname = image name of last piece
       let imgSet = "", imgArr, goodArr;  // always 1D 
@@ -96,8 +96,8 @@
         if (isDone()) {
           gameOn = false;
           document.getElementById(`i${nrow*ncol-1}`).src = sname;
-          displayMsg(`Good Job! You've used ${nmoves} moves.`);
-        } else displayMsg(`Moves used = ${nmoves}`);
+          displayMsg(`解けたね、手数は${nmoves}です`);
+        } else displayMsg(`Moves = ${nmoves}`);
       }
 
       function isDone() {
@@ -145,7 +145,7 @@
     </script>
   </head>
   <body onload="setup()">
-    <h1>Sliding Puzzle 2: 4x8</h1>
+    <h1>Sliding Puzzle: 5x4</h1>
     <div class="container">
       <div>
         <button onclick="startGame()">New Game</button>
@@ -157,43 +157,32 @@
         <img src="blankto.png" id="i1" onmouseover="move('1')" />
         <img src="blankto.png" id="i2" onmouseover="move('2')" />
         <img src="blankto.png" id="i3" onmouseover="move('3')" />
+      </div>
+      <div class="prow" id="prow1">
         <img src="blankto.png" id="i4" onmouseover="move('4')" />
         <img src="blankto.png" id="i5" onmouseover="move('5')" />
         <img src="blankto.png" id="i6" onmouseover="move('6')" />
         <img src="blankto.png" id="i7" onmouseover="move('7')" />
       </div>
-      <div class="prow" id="prow1">
+      <div class="prow" id="prow2">
         <img src="blankto.png" id="i8"  onmouseover="move('8')" />
         <img src="blankto.png" id="i9"  onmouseover="move('9')" />
         <img src="blankto.png" id="i10" onmouseover="move('10')" />
         <img src="blankto.png" id="i11" onmouseover="move('11')" />
+      </div>
+      <div class="prow" id="prow3">
         <img src="blankto.png" id="i12" onmouseover="move('12')" />
         <img src="blankto.png" id="i13" onmouseover="move('13')" />
         <img src="blankto.png" id="i14" onmouseover="move('14')" />
         <img src="blankto.png" id="i15" onmouseover="move('15')" />
       </div>
-      <div class="prow" id="prow2">
+      <div class="prow" id="prow4">
         <img src="blankto.png" id="i16" onmouseover="move('16')" />
         <img src="blankto.png" id="i17" onmouseover="move('17')" />
         <img src="blankto.png" id="i18" onmouseover="move('18')" />
         <img src="blankto.png" id="i19" onmouseover="move('19')" />
-        <img src="blankto.png" id="i20" onmouseover="move('20')" />
-        <img src="blankto.png" id="i21" onmouseover="move('21')" />
-        <img src="blankto.png" id="i22" onmouseover="move('22')" />
-        <img src="blankto.png" id="i23" onmouseover="move('23')" />
-      </div>
-      <div class="prow" id="prow3">
-        <img src="blankto.png" id="i24" onmouseover="move('24')" />
-        <img src="blankto.png" id="i25" onmouseover="move('25')" />
-        <img src="blankto.png" id="i26" onmouseover="move('26')" />
-        <img src="blankto.png" id="i27" onmouseover="move('27')" />
-        <img src="blankto.png" id="i28" onmouseover="move('28')" />
-        <img src="blankto.png" id="i29" onmouseover="move('29')" />
-        <img src="blankto.png" id="i30" onmouseover="move('30')" />
-        <img src="blankto.png" id="i31" onmouseover="move('31')" />
-      </div>      
+      </div>    
     </div>
     <h4><a href="../index.html">Back to home</a></h4>
-    <h4><a href="slidingpuzzleproof.html">For the curious Q: Is every puzzle solvable?</a></h4>
   </body>
 </html>
