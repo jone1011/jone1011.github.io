@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lightsoff</title>
+    <style>
+      body {
+        background-color: black;
+        color: white;
+        font-size: 24px;
+      }
+      a:link { color: yellow; }
+      a:visited { color: yellow; }
+      button { font-size: 24px; }
+      .container {
+        display: flex;
+        flex-direction: column;
+        border: 1px;
+      }      
+      .prow {
+        font-size: 0;
+        white-space: nowrap;
+        
+      }
+    </style>
+    <script>
+      const nrow = 5, ncol = 5;
+      const iname = {"false": "off.png", "true": "on.png"};
+      let gameOn = false, trainOn = false, nmoves = 0;      
+      let grid = Array(5).fill(0).map(() => Array(5).fill(false));
+      const displayMsg = (msg) => document.getElementById("scoreboard").innerHTML = msg;
+      const lightson = (x) => x;
+      
+      function startGame() {
+        grid = Array(5).fill(0).map(() => Array(5).fill(false));
+        grid[0][0] = true;
+        while (!isSolvable() || isDone()) initGrid();
+        showGrid();
+        nmoves = 0;
+        displayMsg(`Can you switch off all the lights?`);
+        gameOn = true; trainOn = false;
+      }
+
+      function startTraining() {
+        grid = Array(5).fill(0).map(() => Array(5).fill(false));
+        showGrid();
+        nmoves = 0;
+        displayMsg(`Training mode: moves = ${nmoves}`);
+        gameOn = false; trainOn = true;
+      }
+
+      function initGrid() { 
+        for (let i=0; i<nrow; i++) {
+          for (let j=0; j<ncol; j++) grid[i][j] = Boolean(Math.floor(Math.random() * 2));
+        }
+      }
+
+      function showGrid() { 
+        for (let i=0; i<nrow; i++) {
+          for (let j=0; j<ncol; j++) document.getElementById(`i${i}${j}`).src = iname[grid[i][j]];
+        }
+      }
+
+      // handle a potential move
+      function move(loc) {
+        if (!gameOn && !trainOn) return;
+        let [px, py] = [parseInt(loc.charAt(0)), parseInt(loc.charAt(1))];
+        grid[px][py] = !grid[px][py];
+        if (px - 1 >= 0) grid[px-1][py] = !grid[px-1][py];
+        if (py - 1 >= 0) grid[px][py-1] = !grid[px][py-1];
+        if (px + 1 < nrow) grid[px+1][py] = !grid[px+1][py];        
+        if (py + 1 < ncol) grid[px][py+1] = !grid[px][py+1];
+        showGrid();
+        nmoves++;
+        if (trainOn) displayMsg(`Training mode: moves = ${nmoves}`);
+        else if (gameOn && isDone()) {
+          gameOn = false;
+          grid = [[0,0,0,0,1],[0,0,0,1,0],[1,0,1,0,0],[0,1,0,0,0],[0,0,0,0,0]];
+          grid = grid.map((row) => row.map((x) => Boolean(x)));
+          showGrid();
+          displayMsg(`Good Job! You've used ${nmoves} moves.`);
+        } else displayMsg(`Moves used = ${nmoves}`);
+      }
+
+      function isDone() {
+        return (!grid[0].some(lightson)) && (!grid[1].some(lightson)) && 
+          (!grid[2].some(lightson)) && (!grid[3].some(lightson)) && (!grid[4].some(lightson));
+      }
+
+      function isSolvable() {
+        const A = [[1,0,0,0,1], [0,0,0,0,0], [0,0,0,0,0], [0,0,0,0,0], [1,0,0,0,1]];
+        const B = [[0,0,1,0,0], [1,0,1,0,1], [0,0,0,0,0], [1,0,1,0,1], [0,0,1,0,0]];
+        const C = [[0,1,0,1,0], [0,0,0,0,0], [1,1,0,1,1], [0,0,0,0,0], [0,1,0,1,0]];
+        let a=0, b=0, c=0;
+        for (let i=0; i<nrow; i++) {
+          for (let j=0; j<ncol; j++) {
+            a += grid[i][j]*A[i][j];
+            b += grid[i][j]*B[i][j];
+            c += grid[i][j]*C[i][j];
+          } 
+        }
+        a = a % 2; b = b % 2; c = c % 2;
+        return (a==1&&b==1&&c==1) || (a==0&&b==0&&c==0);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Lightsoff Puzzle: Turn off all lights!</h1>
+    <div class="container">
+      <div>
+        <button onclick="startGame()">New Game</button>
+        <button onclick="startTraining()">Training</button>
+        <span id="scoreboard"></span>
+      </div>
+      <div class="prow" id="prow0">
+        <img src="off.png" id="i00" onclick="move('00')" />
+        <img src="off.png" id="i01" onclick="move('01')" />
+        <img src="off.png" id="i02" onclick="move('02')" />
+        <img src="off.png" id="i03" onclick="move('03')" />
+        <img src="off.png" id="i04" onclick="move('04')" />
+      </div>
+      <div class="prow" id="prow1">
+        <img src="off.png" id="i10" onclick="move('10')" />
+        <img src="off.png" id="i11" onclick="move('11')" />
+        <img src="off.png" id="i12" onclick="move('12')" />
+        <img src="off.png" id="i13" onclick="move('13')" />
+        <img src="off.png" id="i14" onclick="move('14')" />
+      </div>
+      <div class="prow" id="prow2">
+        <img src="off.png" id="i20" onclick="move('20')" />
+        <img src="off.png" id="i21" onclick="move('21')" />
+        <img src="off.png" id="i22" onclick="move('22')" />
+        <img src="off.png" id="i23" onclick="move('23')" />
+        <img src="off.png" id="i24" onclick="move('24')" />
+      </div>
+      <div class="prow" id="prow3">
+        <img src="off.png" id="i30" onclick="move('30')" />
+        <img src="off.png" id="i31" onclick="move('31')" />
+        <img src="off.png" id="i32" onclick="move('32')" />
+        <img src="off.png" id="i33" onclick="move('33')" />
+        <img src="off.png" id="i34" onclick="move('34')" />
+      </div>
+      <div class="prow" id="prow4">
+        <img src="off.png" id="i40" onclick="move('40')" />
+        <img src="off.png" id="i41" onclick="move('41')" />
+        <img src="off.png" id="i42" onclick="move('42')" />
+        <img src="off.png" id="i43" onclick="move('43')" />
+        <img src="off.png" id="i44" onclick="move('44')" />
+      </div>
+    </div>
+    <h4><a href="../index.html">Back to home</a></h4>
+    </body>
+</html>
