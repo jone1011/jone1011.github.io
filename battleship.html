@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Battleship</title>
+    <style>
+      body {
+        background-color: black;
+        color: white;
+        font-size: 24px;
+      }
+      a:link { color: yellow; }
+      a:visited { color: yellow; }
+      button { font-size: 24px; }
+      .vcontainer { display: flex; flex-direction: column; }     
+      .rcontainer { display: flex; flex-direction: row; }  
+      .prow { font-size: 0; white-space: nowrap; }
+      .cell {
+        background-color: lightblue;
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border: 1px solid gray;
+      }
+      .ship {
+        background-color: lawngreen;
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        border: 1px solid gray;
+      }
+      .shipblank {
+        background-color: black;
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        border: 1px solid black;
+      }
+      .ship0 { background-color: lawngreen; }
+      .ship1 { background-color: lawngreen; }
+      .ship2 { background-color: lawngreen; }
+      .ship3 { background-color: lawngreen; }
+      .ship4 { background-color: lawngreen; }
+      .ship5 { background-color: lawngreen; visibility: hidden; };
+    </style>
+    <script>
+      const nrow = 10, ncol = 10;
+      let gameOn = false, nmoves = 0;
+      let dgrid = [];     // for display
+      let sgrid = [];     // ships positions
+      let shipsLife = [];
+      const shipsLength = [3, 3, 4, 4, 5, 2];
+      const gcolor = {0: "lightblue", 1: "darkblue", 2: "red"};
+      const displayMsg = (msg) => document.getElementById("scoreboard").innerHTML = msg;
+
+      function setup() {
+        // based on settings, inject cells
+        //updateGrid();
+      }
+
+      function startGame(lv=0) {
+        shipsLife = shipsLength.slice(0, 5+lv);
+        randomlyPlaceShips();
+        let allCells = [];
+        for (let i=0; i<nrow; i++) {
+            for (let j=0; j<ncol; j++) allCells.push(`${i}${j}`);
+        }
+        updateGrid(allCells);
+        console.log(shipsLife);
+        for (let i=0; i<shipsLife.length; i++) updateShipsStatus(i, "lawngreen");
+        nmoves = 0;
+        displayMsg(`Start shooting~~`);
+        gameOn = true;
+      }
+
+      function randomlyPlaceShips() { 
+        sgrid = Array(nrow).fill("").map(() => Array(ncol).fill(9));
+        for (let i=0; i<shipsLife.length; i++) {
+          let slen = shipsLife[i];
+          let isValid = false;
+          let a = 0, b = 0, pi = 0, pj = 0;
+          while (!isValid) {            
+            a = Math.random() < 0.5;
+            b = 1 - a;
+            pi = Math.floor(Math.random()*nrow);
+            pj = Math.floor(Math.random()*ncol);
+            if (pi+a*slen >= nrow || pj+b*slen >= ncol) continue;
+            isValid = true;
+            for (let k=0; k<slen; k++) {
+              if (sgrid[pi+a*k][pj+b*k] < 9) isValid = false;
+            }
+          }
+          for (let k=0; k<slen; k++) {
+            sgrid[pi+a*k][pj+b*k] = i;
+          }
+        }
+        dgrid = Array(nrow).fill("").map(() => Array(ncol).fill(0));
+        console.log(sgrid);
+      }
+
+      function updateGrid(cells) {
+        for (let cid of cells) {
+          let [i, j] = [parseInt(cid.charAt(0)), parseInt(cid.charAt(1))];
+          document.getElementById('c' + cid).style.backgroundColor = gcolor[dgrid[i][j]];
+        }
+      }
+
+      function updateShipsStatus(v, scolor) {
+        let cells = document.getElementsByClassName(`ship${v}`);
+        for (let cell of cells) cell.style.backgroundColor = scolor;
+      }
+
+      // handle a potential move
+      function shoot(pos) {
+        if (!gameOn) return;
+        let [pi, pj] = [parseInt(pos.charAt(0)), parseInt(pos.charAt(1))];
+        if (dgrid[pi][pj] > 0) return;
+        let v = sgrid[pi][pj];
+        if (v < 9) {
+          dgrid[pi][pj] = 2;
+          shipsLife[v] -= 1;
+          if (shipsLife[v] == 0) updateShipsStatus(v, "red");
+        } else dgrid[pi][pj] = 1;
+        updateGrid([pos]);
+        nmoves++;
+        if (shipsLife.reduce((a, b) => a + b, 0) == 0) {
+          gameOn = false;
+          displayMsg(`Good Job! You've used ${nmoves} moves.`);
+        } else displayMsg(`Moves used = ${nmoves}`);
+      }
+    </script>
+  </head>
+  <body onload="setup()">
+    <h1>Battleship Game</h1>
+    <h4>Objective is to sink all the enemies vessels, using the least attacks!</h4>
+    <div class="vcontainer">
+      <div>
+        <button onclick="startGame()">New Game</button>
+        <span id="scoreboard">Enemy Vessels</span><br>
+          <span class="ship ship0"></span><span class="ship ship0"></span><span class="ship ship0"></span>
+          <span class="shipblank"></span>
+          <span class="ship ship1"></span><span class="ship ship1"></span><span class="ship ship1"></span>
+          <span class="shipblank"></span>
+          <span class="ship ship2"></span><span class="ship ship2"></span><span class="ship ship2"></span><span class="ship ship2"></span>
+          <br>
+          <span class="ship ship3"></span><span class="ship ship3"></span><span class="ship ship3"></span><span class="ship ship3"></span>
+          <span class="shipblank"></span>
+          <span class="ship ship4"></span><span class="ship ship4"></span><span class="ship ship4"></span><span class="ship ship4"></span><span class="ship ship4"></span>
+          <span class="shipblank"></span>
+          <span class="ship ship5"></span><span class="ship ship5"></span><br>
+      
+      <div class="prow">
+        <span class="cell" id="c00" onclick="shoot('00')"></span>
+        <span class="cell" id="c01" onclick="shoot('01')"></span>
+        <span class="cell" id="c02" onclick="shoot('02')"></span>
+        <span class="cell" id="c03" onclick="shoot('03')"></span>
+        <span class="cell" id="c04" onclick="shoot('04')"></span>
+        <span class="cell" id="c05" onclick="shoot('05')"></span>
+        <span class="cell" id="c06" onclick="shoot('06')"></span>
+        <span class="cell" id="c07" onclick="shoot('07')"></span>
+        <span class="cell" id="c08" onclick="shoot('08')"></span>
+        <span class="cell" id="c09" onclick="shoot('09')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c10" onclick="shoot('10')"></span>
+        <span class="cell" id="c11" onclick="shoot('11')"></span>
+        <span class="cell" id="c12" onclick="shoot('12')"></span>
+        <span class="cell" id="c13" onclick="shoot('13')"></span>
+        <span class="cell" id="c14" onclick="shoot('14')"></span>
+        <span class="cell" id="c15" onclick="shoot('15')"></span>
+        <span class="cell" id="c16" onclick="shoot('16')"></span>
+        <span class="cell" id="c17" onclick="shoot('17')"></span>
+        <span class="cell" id="c18" onclick="shoot('18')"></span>
+        <span class="cell" id="c19" onclick="shoot('19')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c20" onclick="shoot('20')"></span>
+        <span class="cell" id="c21" onclick="shoot('21')"></span>
+        <span class="cell" id="c22" onclick="shoot('22')"></span>
+        <span class="cell" id="c23" onclick="shoot('23')"></span>
+        <span class="cell" id="c24" onclick="shoot('24')"></span>
+        <span class="cell" id="c25" onclick="shoot('25')"></span>
+        <span class="cell" id="c26" onclick="shoot('26')"></span>
+        <span class="cell" id="c27" onclick="shoot('27')"></span>
+        <span class="cell" id="c28" onclick="shoot('28')"></span>
+        <span class="cell" id="c29" onclick="shoot('29')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c30" onclick="shoot('30')"></span>
+        <span class="cell" id="c31" onclick="shoot('31')"></span>
+        <span class="cell" id="c32" onclick="shoot('32')"></span>
+        <span class="cell" id="c33" onclick="shoot('33')"></span>
+        <span class="cell" id="c34" onclick="shoot('34')"></span>
+        <span class="cell" id="c35" onclick="shoot('35')"></span>
+        <span class="cell" id="c36" onclick="shoot('36')"></span>
+        <span class="cell" id="c37" onclick="shoot('37')"></span>
+        <span class="cell" id="c38" onclick="shoot('38')"></span>
+        <span class="cell" id="c39" onclick="shoot('39')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c40" onclick="shoot('40')"></span>
+        <span class="cell" id="c41" onclick="shoot('41')"></span>
+        <span class="cell" id="c42" onclick="shoot('42')"></span>
+        <span class="cell" id="c43" onclick="shoot('43')"></span>
+        <span class="cell" id="c44" onclick="shoot('44')"></span>
+        <span class="cell" id="c45" onclick="shoot('45')"></span>
+        <span class="cell" id="c46" onclick="shoot('46')"></span>
+        <span class="cell" id="c47" onclick="shoot('47')"></span>
+        <span class="cell" id="c48" onclick="shoot('48')"></span>
+        <span class="cell" id="c49" onclick="shoot('49')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c50" onclick="shoot('50')"></span>
+        <span class="cell" id="c51" onclick="shoot('51')"></span>
+        <span class="cell" id="c52" onclick="shoot('52')"></span>
+        <span class="cell" id="c53" onclick="shoot('53')"></span>
+        <span class="cell" id="c54" onclick="shoot('54')"></span>
+        <span class="cell" id="c55" onclick="shoot('55')"></span>
+        <span class="cell" id="c56" onclick="shoot('56')"></span>
+        <span class="cell" id="c57" onclick="shoot('57')"></span>
+        <span class="cell" id="c58" onclick="shoot('58')"></span>
+        <span class="cell" id="c59" onclick="shoot('59')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c60" onclick="shoot('60')"></span>
+        <span class="cell" id="c61" onclick="shoot('61')"></span>
+        <span class="cell" id="c62" onclick="shoot('62')"></span>
+        <span class="cell" id="c63" onclick="shoot('63')"></span>
+        <span class="cell" id="c64" onclick="shoot('64')"></span>
+        <span class="cell" id="c65" onclick="shoot('65')"></span>
+        <span class="cell" id="c66" onclick="shoot('66')"></span>
+        <span class="cell" id="c67" onclick="shoot('67')"></span>
+        <span class="cell" id="c68" onclick="shoot('68')"></span>
+        <span class="cell" id="c69" onclick="shoot('69')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c70" onclick="shoot('70')"></span>
+        <span class="cell" id="c71" onclick="shoot('71')"></span>
+        <span class="cell" id="c72" onclick="shoot('72')"></span>
+        <span class="cell" id="c73" onclick="shoot('73')"></span>
+        <span class="cell" id="c74" onclick="shoot('74')"></span>
+        <span class="cell" id="c75" onclick="shoot('75')"></span>
+        <span class="cell" id="c76" onclick="shoot('76')"></span>
+        <span class="cell" id="c77" onclick="shoot('77')"></span>
+        <span class="cell" id="c78" onclick="shoot('78')"></span>
+        <span class="cell" id="c79" onclick="shoot('79')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c80" onclick="shoot('80')"></span>
+        <span class="cell" id="c81" onclick="shoot('81')"></span>
+        <span class="cell" id="c82" onclick="shoot('82')"></span>
+        <span class="cell" id="c83" onclick="shoot('83')"></span>
+        <span class="cell" id="c84" onclick="shoot('84')"></span>
+        <span class="cell" id="c85" onclick="shoot('85')"></span>
+        <span class="cell" id="c86" onclick="shoot('86')"></span>
+        <span class="cell" id="c87" onclick="shoot('87')"></span>
+        <span class="cell" id="c88" onclick="shoot('88')"></span>
+        <span class="cell" id="c89" onclick="shoot('89')"></span>
+      </div>
+      <div class="prow">
+        <span class="cell" id="c90" onclick="shoot('90')"></span>
+        <span class="cell" id="c91" onclick="shoot('91')"></span>
+        <span class="cell" id="c92" onclick="shoot('92')"></span>
+        <span class="cell" id="c93" onclick="shoot('93')"></span>
+        <span class="cell" id="c94" onclick="shoot('94')"></span>
+        <span class="cell" id="c95" onclick="shoot('95')"></span>
+        <span class="cell" id="c96" onclick="shoot('96')"></span>
+        <span class="cell" id="c97" onclick="shoot('97')"></span>
+        <span class="cell" id="c98" onclick="shoot('98')"></span>
+        <span class="cell" id="c99" onclick="shoot('99')"></span>
+      </div>
+    </div>
+    <h4><a href="../index.html">Back to home</a></h4>
+  </body>
+</html>
